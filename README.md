@@ -1,1 +1,1 @@
-<img src="print.png">
+<p align="center"><img src="print.png"></p>
