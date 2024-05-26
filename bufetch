@@ -6,33 +6,55 @@ NC='\033[0m' # No Color
 # Get vendor name by ID
 get_vendor_name() {
     case $1 in
-        0x1002) echo "AMD";;
-        0x1010) echo "ImgTec";;
-        0x10de) echo "NVIDIA";;
-        0x13b5) echo "ARM";;
-        0x5143) echo "Qualcomm";;
-        0x8086) echo "INTEL";;
-        *) echo "Unknown ($1)";;
+        0x1002) printf "AMD";;
+        0x1010) printf "ImgTec";;
+        0x10de) printf "NVIDIA";;
+        0x13b5) printf "ARM";;
+        0x5143) printf "Qualcomm";;
+        0x8086) printf "INTEL";;
+        *) printf "Unknown ($1)";;
     esac
 }
 
 # Function to format uptime
 format_uptime() {
     local uptime_seconds=$(awk '{print int($1)}' /proc/uptime)
-    local minutes=$((uptime_seconds / 60))
-    local hours=$((minutes / 60))
-    local days=$((hours / 24))
-    local months=$((days / 30))
+    local minutes=$((uptime_seconds / 60 % 60))
+    local hours=$((uptime_seconds / 3600 % 24))
+    local days=$((uptime_seconds / 86400 % 30))
+    local months=$((uptime_seconds / 2592000))
+    
+    local result=""
     
     if [ "$months" -ge 1 ]; then
-        echo "${months} months"
-    elif [ "$days" -ge 1 ]; then
-        echo "${days} days"
-    elif [ "$hours" -ge 1 ]; then
-        echo "${hours} hours"
-    else
-        echo "${minutes} minutes"
+        result="${months} months"
     fi
+    
+    if [ "$days" -ge 1 ]; then
+        if [ -n "$result" ]; then
+            result="${result}, ${days} days"
+        else
+            result="${days} days"
+        fi
+    fi
+    
+    if [ "$hours" -ge 1 ]; then
+        if [ -n "$result" ]; then
+            result="${result}, ${hours} hours"
+        else
+            result="${hours} hours"
+        fi
+    fi
+    
+    if [ "$minutes" -ge 1 ]; then
+        if [ -n "$result" ]; then
+            result="${result}, ${minutes} mins"
+        else
+            result="${minutes} mins"
+        fi
+    fi
+    
+    printf "%s" "$result"
 }
 
 # Get OS pretty name
@@ -42,20 +64,20 @@ os_name=$(awk -F= '/^PRETTY_NAME/ {print $2}' /etc/os-release | tr -d '"' 2>/dev
 kernel_version=$(uname -r)
 
 # Display OS and kernel info
-echo -e "${GREEN}OS${NC}\t$os_name"
-echo -e "${GREEN}Kernel${NC}\t$kernel_version"
+printf "${GREEN}OS${NC}\t%s\n" "$os_name"
+printf "${GREEN}Kernel${NC}\t%s\n" "$kernel_version"
 
 # Display uptime if available
 if [ -f /proc/uptime ]; then
     uptime=$(format_uptime)
-    echo -e "${GREEN}Uptime${NC}\t$uptime"
+    printf "${GREEN}Uptime${NC}\t%s\n" "$uptime"
 fi
 
 # Get and display CPU info
 if [ -f /proc/cpuinfo ]; then
     cpu=$(awk -F ': ' '/^model name/ {print $2; exit}' /proc/cpuinfo)
     threads=$(awk '/^processor/ {count++} END {print count}' /proc/cpuinfo)
-    echo -e "${GREEN}CPU${NC}\t$cpu ($threads threads)"
+    printf "${GREEN}CPU${NC}\t%s (%s)\n" "$cpu" "$threads"
 fi
 
 # Get and display RAM info
@@ -63,7 +85,7 @@ if [ -f /proc/meminfo ]; then
     ram_info=$(free -m | awk '/^Mem:/ {used=$3; total=$2; print used, total}')
     used_ram=$(echo $ram_info | awk '{print $1}')
     total_ram=$(echo $ram_info | awk '{print $2}')
-   echo -e "${GREEN}RAM${NC}\t${used_ram}MiB / ${total_ram}MiB"
+    printf "${GREEN}RAM${NC}\t%sMiB / %sMiB\n" "$used_ram" "$total_ram"
 fi
 
 # Get and display GPU info
@@ -73,7 +95,7 @@ if [ -d /sys/class/drm ]; then
             vendor=$(cat "$gpu/device/vendor")
             device=$(cat "$gpu/device/device")
             vendor_name=$(get_vendor_name $vendor)
-            echo -e "${GREEN}GPU${NC}\t$vendor_name - $device"
+            printf "${GREEN}GPU${NC}\t%s - %s\n" "$vendor_name" "$device"
         fi
     done
 fi
