@@ -70,7 +70,9 @@ elif command -v rpm >/dev/null 2>&1; then
     source="(rpm)"
 fi
 
-printf "${GREEN}PKS${NC}\t%s %s\n" "$pkgs" "$source"
+if [ -n "$pkgs" ]; then
+    printf "${GREEN}PKS${NC}\t%s %s\n" "$pkgs" "$source"
+fi
 
 # Get and display SHELL info
 if [ -n "$SHELL" ]; then
