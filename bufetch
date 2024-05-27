@@ -73,11 +73,6 @@ if [ -f /proc/uptime ]; then
     printf "${GREEN}Uptime${NC}\t%s\n" "$uptime"
 fi
 
-if [ -f /proc/$PPID/exe ]; then
-    terminal=$(basename $(readlink -f /proc/$PPID/exe))
-    printf "${GREEN}Terminal${NC}\t%s\n" "$terminal"
-fi
-
 # Get and display CPU info
 if [ -f /proc/cpuinfo ]; then
     cpu=$(awk -F ': ' '/^model name/ {print $2; exit}' /proc/cpuinfo)
