@@ -24,7 +24,7 @@ kernel_version=$(uname -r)
 
 # Display OS and kernel info
 printf "${GREEN}OS${NC}\t%s\n" "$os_name"
-printf "${GREEN}Kernel${NC}\t%s\n" "$kernel_version"
+printf "${GREEN}KER${NC}\t%s\n" "$kernel_version"
 
 # Display uptime if available
 if [ -e /proc/uptime ]; then
@@ -36,18 +36,18 @@ if [ -e /proc/uptime ]; then
     [ $days -gt 0 ] && uptime="${days} day$(if [ $days -gt 1 ]; then echo "s"; else echo ""; fi), "
     [ $hours -gt 0 ] && uptime="${uptime}${hours} hour$(if [ $hours -gt 1 ]; then echo "s"; else echo ""; fi), "
     uptime="${uptime}${mins} min$(if [ $mins -gt 1 ]; then echo "s"; else echo ""; fi)"
-    printf "${GREEN}Uptime${NC}\t%s\n" "$uptime"
+    printf "${GREEN}UPT${NC}\t%s\n" "$uptime"
 fi
 
 # Get and display SHELL info
 if [ -n "$SHELL" ]; then
     shell_basename=$(basename "$SHELL")
-    printf "${GREEN}Shell${NC}\t%s\n" "$shell_basename"
+    printf "${GREEN}SHL${NC}\t%s\n" "$shell_basename"
 fi
 
 # Get and display WM info
 if [ -n "$DESKTOP" ]; then
-    printf "${GREEN}Desktop${NC}\t%s\n" "$DESKTOP"
+    printf "${GREEN}DSK${NC}\t%s\n" "$DESKTOP"
 fi
 
 # Get and display Terminal
@@ -58,7 +58,7 @@ if [ -e /proc/$PPID/exe ]; then
     done
 
     terminal=$(awk '{print $1}' /proc/$pid/comm)
-    printf "${GREEN}TERM${NC}\t%s\n" "$terminal"
+    printf "${GREEN}TER${NC}\t%s\n" "$terminal"
 fi
 
 # Get and display CPU info
