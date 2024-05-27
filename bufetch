@@ -16,47 +16,6 @@ get_vendor_name() {
     esac
 }
 
-# Function to format uptime
-format_uptime() {
-    local uptime_seconds=$(awk '{print int($1)}' /proc/uptime)
-    local minutes=$((uptime_seconds / 60 % 60))
-    local hours=$((uptime_seconds / 3600 % 24))
-    local days=$((uptime_seconds / 86400 % 30))
-    local months=$((uptime_seconds / 2592000))
-    
-    local result=""
-    
-    if [ "$months" -ge 1 ]; then
-        result="${months} months"
-    fi
-    
-    if [ "$days" -ge 1 ]; then
-        if [ -n "$result" ]; then
-            result="${result}, ${days} days"
-        else
-            result="${days} days"
-        fi
-    fi
-    
-    if [ "$hours" -ge 1 ]; then
-        if [ -n "$result" ]; then
-            result="${result}, ${hours} hours"
-        else
-            result="${hours} hours"
-        fi
-    fi
-    
-    if [ "$minutes" -ge 1 ]; then
-        if [ -n "$result" ]; then
-            result="${result}, ${minutes} mins"
-        else
-            result="${minutes} mins"
-        fi
-    fi
-    
-    printf "%s" "$result"
-}
-
 # Get OS pretty name
 os_name=$(awk -F= '/^PRETTY_NAME/ {print $2}' /etc/os-release | tr -d '"' 2>/dev/null || uname -o)
 
@@ -68,9 +27,38 @@ printf "${GREEN}OS${NC}\t%s\n" "$os_name"
 printf "${GREEN}Kernel${NC}\t%s\n" "$kernel_version"
 
 # Display uptime if available
-if [ -f /proc/uptime ]; then
-    uptime=$(format_uptime)
+if [ -e /proc/uptime ]; then
+    up=$(cut -d. -f1 /proc/uptime)
+    days=$((up / 86400))
+    hours=$((up / 3600 % 24))
+    mins=$((up / 60 % 60))
+    uptime=""
+    [ $days -gt 0 ] && uptime="${days} day$(if [ $days -gt 1 ]; then echo "s"; else echo ""; fi), "
+    [ $hours -gt 0 ] && uptime="${uptime}${hours} hour$(if [ $hours -gt 1 ]; then echo "s"; else echo ""; fi), "
+    uptime="${uptime}${mins} min$(if [ $mins -gt 1 ]; then echo "s"; else echo ""; fi)"
     printf "${GREEN}Uptime${NC}\t%s\n" "$uptime"
+fi
+
+# Get and display SHELL info
+if [ -n "$SHELL" ]; then
+    shell_basename=$(basename "$SHELL")
+    printf "${GREEN}Shell${NC}\t%s\n" "$shell_basename"
+fi
+
+# Get and display WM info
+if [ -n "$DESKTOP" ]; then
+    printf "${GREEN}Desktop${NC}\t%s\n" "$DESKTOP"
+fi
+
+# Get and display Terminal
+if [ -e /proc/$PPID/exe ]; then
+    pid=$$
+    while [ "$(readlink /proc/$pid/exe)" = "$(readlink /proc/$PPID/exe)" ]; do
+        pid=$(awk '{print $4}' /proc/$pid/stat)
+    done
+
+    terminal=$(awk '{print $1}' /proc/$pid/comm)
+    printf "${GREEN}TERM${NC}\t%s\n" "$terminal"
 fi
 
 # Get and display CPU info
