@@ -114,7 +114,7 @@ if [ -d /sys/class/drm ]; then
     for gpu in /sys/class/drm/card*; do
         if [ -d "$gpu/device" ]; then
             vendor=$(cat "$gpu/device/vendor")
-            device=$(cat "$gpu/device/device")
+            device=$(cat "$gpu/device/device" | sed 's/^0x//')
             vendor_name=$(get_vendor_name $vendor)
             printf "${GREEN}GPU${NC}\t%s - %s\n" "$vendor_name" "$device"
         fi
