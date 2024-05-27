@@ -39,6 +39,39 @@ if [ -e /proc/uptime ]; then
     printf "${GREEN}UPT${NC}\t%s\n" "$uptime"
 fi
 
+# Get and display Packages count
+
+if command -v dpkg >/dev/null 2>&1; then
+    pkgs=$(dpkg -l | grep '^ii' | wc -l)
+    source="(dpkg)"
+elif command -v pacman >/dev/null 2>&1; then
+    pkgs=$(pacman -Q | wc -l)
+    source="(pacman)"
+elif command -v equo >/dev/null 2>&1; then
+    pkgs=$(equo query list installed -q | wc -l)
+    source="(equo)"
+elif command -v eopkg >/dev/null 2>&1; then
+    pkgs=$(eopkg list-installed | wc -l)
+    source="(eopkg)"
+elif command -v tce-status >/dev/null 2>&1; then
+    pkgs=$(tce-status -i | wc -l)
+    source="(tce-status)"
+elif command -v apk >/dev/null 2>&1; then
+    pkgs=$(apk info | wc -l)
+    source="(apk)"
+elif command -v xbps-query >/dev/null 2>&1; then
+    pkgs=$(xbps-query -l | wc -l)
+    source="(xbps-query)"
+elif command -v emerge >/dev/null 2>&1; then
+    pkgs=$(qlist -I | wc -l)
+    source="(emerge)"
+elif command -v rpm >/dev/null 2>&1; then
+    pkgs=$(rpm -qa | wc -l)
+    source="(rpm)"
+fi
+
+printf "${GREEN}PKS${NC}\t%s %s\n" "$pkgs" "$source"
+
 # Get and display SHELL info
 if [ -n "$SHELL" ]; then
     shell_basename=$(basename "$SHELL")
