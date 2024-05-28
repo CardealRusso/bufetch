@@ -17,7 +17,11 @@ get_vendor_name() {
 }
 
 # Get OS pretty name
-os_name=$(awk -F= '/^PRETTY_NAME/ {print $2}' /etc/os-release | tr -d '"' 2>/dev/null || uname -o)
+if [ -f /etc/os-release ]; then
+    os_name=$(. /etc/os-release; printf '%s\n' "$PRETTY_NAME")
+else
+    os_name=$(uname -o)
+fi
 
 # Get kernel version
 kernel_version=$(uname -r)
@@ -40,7 +44,6 @@ if [ -e /proc/uptime ]; then
 fi
 
 # Get and display Packages count
-
 if command -v dpkg >/dev/null 2>&1; then
     pkgs=$(dpkg -l | grep '^ii' | wc -l)
     source="(dpkg)"
@@ -93,8 +96,11 @@ if [ -e /proc/$PPID/exe ]; then
     done
 
     terminal=$(awk '{print $1}' /proc/$pid/comm)
-    printf "${GREEN}TER${NC}\t%s\n" "$terminal"
+    if [[ "$terminal" != *"bufetch"* ]]; then
+        printf "${GREEN}TER${NC}\t%s\n" "$terminal"
+    fi
 fi
+
 
 # Get and display CPU info
 if [ -f /proc/cpuinfo ]; then
