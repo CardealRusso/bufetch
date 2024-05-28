@@ -139,3 +139,17 @@ if [ -d /sys/class/drm ]; then
         fi
     done
 fi
+
+# Get and display Storages
+for device in /sys/block/*; do
+    if [ -e "$device/device/model" ] && [ -e "$device/device/vendor" ] && [ -e "$device/size" ]; then
+        size=$(cat "$device/size")
+        if [ "$size" -gt 0 ]; then
+            dev_name=$(basename "$device")
+            model=$(cat "$device/device/model")
+            vendor=$(cat "$device/device/vendor")
+        
+            printf "${GREEN}${dev_name}${NC}\t${vendor} ${model}\n"
+        fi
+    fi
+done
