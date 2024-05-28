@@ -18,11 +18,11 @@ get_vendor_name() {
 
 # Get OS pretty name
 if [ -f /etc/os-release ]; then
-    GREEN='\033['"$ANSI_COLOR"'m'
-    os_name=$PRETTY_NAME
-else
-    os_name=$(uname -o)
+    . /etc/os-release
+    [ -n "$ANSI_COLOR" ] && GREEN='\033['"$ANSI_COLOR"'m'
+    [ -n "$PRETTY_NAME" ] && os_name=$PRETTY_NAME
 fi
+[ -z "$os_name" ] && os_name=$(uname -o)
 
 # Get kernel version
 kernel_version=$(uname -r)
