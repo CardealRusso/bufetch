@@ -104,7 +104,7 @@ fi
 
 # Get and display CPU info
 if [ -f /proc/cpuinfo ]; then
-    cpu=$(grep -m 1 "^model name\|^isa\|^cpu model\|^Processor" /proc/cpuinfo | cut -d ':' -f 2- | sed 's/^ *//')
+    cpu=$(awk -F ': ' '/^(model name|isa|cpu model|Processor|Hardware)/ {print $2; exit}' /proc/cpuinfo)
     threads=$(awk '/^processor/ {count++} END {print count}' /proc/cpuinfo)
     printf "${GREEN}CPU${NC}\t%s (%s)\n" "$cpu" "$threads"
 fi
