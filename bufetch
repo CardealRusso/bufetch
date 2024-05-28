@@ -4,7 +4,7 @@ GREEN='\033[0;32m'
 NC='\033[0m'
 
 if [ -f "/etc/os-release" ]; then
-    ANSI_COLOR=$(awk -F "=" '/^ANSI_COLOR/ {gsub(/"/, "", $2); print $2}' /etc/os-release)
+    . /etc/os-release
     if [ -n "$ANSI_COLOR" ]; then
         GREEN='\033['"$ANSI_COLOR"'m'
     fi
