@@ -97,7 +97,7 @@ if [ -e /proc/$PPID/exe ]; then
     done
 
     terminal=$(awk '{print $1}' /proc/$pid/comm)
-    if [[ -n $terminal && $terminal != "bufetch" ]]; then
+    if [ -n "$terminal" ] && [ "$terminal" != "bufetch" ]; then
         printf "${GREEN}TER${NC}\t%s\n" "$terminal"
     fi
 fi
