@@ -11,7 +11,7 @@ get_vendor_name() {
         0x10de) printf "NVIDIA";;
         0x13b5) printf "ARM";;
         0x5143) printf "Qualcomm";;
-        0x8086) printf "INTEL";;
+        0x8086) printf "Intel";;
         *) printf "Unknown ($1)";;
     esac
 }
